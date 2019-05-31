@@ -1,0 +1,28 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t gregseed/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run gregseed/react-test  -e CI=true npm test -- --coverage
+
+
+after_success:
+  - docker build -t gregseed/multi-client ./client
+  - docker build -t gregseed/multi-nginx ./nginx
+  - docker build -t gregseed/multi-server ./server
+  - docker build -t gregseed/multi-worker ./worker
+
+  # Log in to the docker CLI
+
+  # retrieves docker password, and emit that over stdin as input to next command
+  # tell docker login to expect that over std-in
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+
+  # Take those images and push them to docker hub
+  - docker push gregseed/multi-client
+  - docker push gregseed/multi-nginx
+  - docker push gregseed/multi-server
+  - docker push gregseed/multi-worker
