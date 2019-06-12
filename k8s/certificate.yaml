@@ -1,0 +1,20 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: multik8s-gregseed-seeddevsdemo-com-tls
+spec:
+  secretName: multik8s-gregseed-seeddevsdemo-com
+  issuerRef: 
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: multik8s.gregseed.seeddevsdemo.com # will be put on certificate
+  dnsNames: # put both www and regular, list of all domains that should be associated with certificate
+    - multik8s.gregseed.seeddevsdemo.com
+    - www.multik8s.gregseed.seeddevsdemo.com
+  acme:
+    config:
+      - http01:
+        ingressClass: nginx
+      domains:
+        - multik8s.gregseed.seeddevsdemo.com
+        - www.multik8s.gregseed.seeddevsdemo.com
