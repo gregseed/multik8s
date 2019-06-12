@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: # names the object
+  name: client-deployment
+spec:
+  replicas: 3 # specifying the number of different pods that it is supposed to make (identical in nature) [create one pod using template below]
+  selector: # used to get a handle on created pod(s)
+    matchLabels:
+      component: web
+  template: # listing out configuration that will be used for every single pod created by deployment
+    metadata:
+      labels:
+        component: web
+    spec:
+      containers:
+        - name: client
+          image: gregseed/multi-client
+          ports:
+            - containerPort: 3000
