@@ -5,9 +5,33 @@ metadata:
   annotations: # additional configuration options that put in higher level configuration around object that is created
     kubernetes.io/ingress.class: nginx # tell kubernetes want to create ingress controller based on nginx project
     nginx.ingress.kubernetes.io/rewrite-target: /$1 # removes /api part, for example
+    # for ssl below
+    certmanager.k8s.io/cluster-issuer: 'letsencrypt-prod' # use letsencrypt issuer
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true' # ssl redirect http to https
 spec:
+  # for ssl below
+  tls:
+    - hosts:
+        - multik8s.gregseed.seeddevsdemo.com
+        - www.multik8s.gregseed.seeddevsdemo.com
+      secretName: multik8s-gregseed-seeddevsdemo-com
+  # other rules
   rules:
-    - http:
+    # need to apply to www and non www
+    - host: multik8s.gregseed.seeddevsdemo.com
+      http:
+        paths: # routing for different apis
+          - path: /?(.*)
+            backend: 
+              serviceName: client-cluster-ip-service
+              servicePort: 3000
+          - path: /api/?(.*)
+            backend:
+              serviceName: server-cluster-ip-service
+              servicePort: 5000
+    # need to apply to www and non www
+    - host: www.multik8s.gregseed.seeddevsdemo.com
+      http:
         paths: # routing for different apis
           - path: /?(.*)
             backend: 
